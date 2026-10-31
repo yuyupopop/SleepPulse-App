@@ -126,6 +126,6 @@ public struct SleepDebtDetailView: View {
         }
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Deuda de Sueño")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 }

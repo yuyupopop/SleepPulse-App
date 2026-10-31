@@ -121,6 +121,6 @@ public struct SleepPerformanceDetailView: View {
         }
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Rendimiento del Sueño")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 }

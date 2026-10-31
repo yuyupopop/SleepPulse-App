@@ -125,6 +125,6 @@ public struct SleepEfficiencyDetailView: View {
         }
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Eficiencia del Sueño")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 }

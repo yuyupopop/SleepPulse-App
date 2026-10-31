@@ -7,10 +7,12 @@
 
 import SwiftUI
 
+#if !SWIFT_PACKAGE
 @main
-struct SleepPulseApp: App {
-    // Si el entorno se ejecuta en el simulador o sin HealthStore real disponible,
-    // se conmuta con fluidez al servicio sintético realista para permitir el desarrollo continuo.
+#endif
+public struct SleepPulseApp: App {
+    public init() {}
+
     private let healthKitService: HealthKitServiceProtocol = {
         #if targetEnvironment(simulator)
         return MockHealthKitService.shared
@@ -19,7 +21,7 @@ struct SleepPulseApp: App {
         #endif
     }()
 
-    var body: some Scene {
+    public var body: some Scene {
         WindowGroup {
             DashboardView(
                 viewModel: DashboardViewModel(

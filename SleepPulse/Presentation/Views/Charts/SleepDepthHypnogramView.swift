@@ -52,7 +52,7 @@ public struct SleepDepthHypnogramView: View {
         }
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Profundidad del Sueño")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 
     // MARK: - Encabezado
@@ -111,13 +111,14 @@ public struct SleepDepthHypnogramView: View {
             // Gráfica de niveles de profundidad
             Chart {
                 ForEach(viewModel.hypnogramSamples) { sample in
-                    // Área con gradiente de profundidad
-                    AreaMark(
+                    // Fondo sombreado de la fase
+                    RectangleMark(
                         xStart: .value("Inicio", sample.startDate),
                         xEnd: .value("Fin", sample.endDate),
-                        y: .value("Profundidad", sample.stage.depthLevel)
+                        yStart: .value("Base", 0),
+                        yEnd: .value("Profundidad", sample.stage.depthLevel)
                     )
-                    .foregroundStyle(sample.stage.color.opacity(0.40))
+                    .foregroundStyle(sample.stage.color.opacity(0.35))
 
                     // Barra sólida para representar el tramo exacto
                     BarMark(

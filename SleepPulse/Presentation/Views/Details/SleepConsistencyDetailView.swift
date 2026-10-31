@@ -113,6 +113,6 @@ public struct SleepConsistencyDetailView: View {
         }
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle("Consistencia del Sueño")
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
     }
 }

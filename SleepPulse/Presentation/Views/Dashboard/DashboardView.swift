@@ -62,9 +62,9 @@ public struct DashboardView: View {
                 }
             }
             .navigationTitle("SleepPulse")
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .primaryAction) {
                     Button {
                         Task { await viewModel.reloadAllData() }
                     } label: {
@@ -79,7 +79,7 @@ public struct DashboardView: View {
                     depthViewModel.updateSession(last)
                 }
             }
-            .onChange(of: viewModel.latestSession) { newSession in
+            .onChange(of: viewModel.latestSession) { _, newSession in
                 if let session = newSession {
                     depthViewModel.updateSession(session)
                 }
