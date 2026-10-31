@@ -10,6 +10,7 @@ import SwiftUI
 #if !SWIFT_PACKAGE
 @main
 #endif
+@MainActor
 public struct SleepPulseApp: App {
     public init() {}
 

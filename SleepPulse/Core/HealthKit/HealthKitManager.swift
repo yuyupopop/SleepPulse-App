@@ -11,6 +11,7 @@ import HealthKit
 public enum HealthKitError: LocalizedError {
     case notAvailableOnDevice
     case permissionDenied
+    case missingUsageDescription
     case queryFailed(String)
 
     public var errorDescription: String? {
@@ -18,7 +19,9 @@ public enum HealthKitError: LocalizedError {
         case .notAvailableOnDevice:
             return "HealthKit no está disponible en este dispositivo."
         case .permissionDenied:
-            return "El acceso a los datos de Apple Salud ha sido denegado por el usuario."
+            return "El acceso a los datos de Apple Salud ha sido denegado o no está configurado."
+        case .missingUsageDescription:
+            return "Falta NSHealthShareUsageDescription en Info.plist."
         case .queryFailed(let reason):
             return "Error al consultar HealthKit: \(reason)"
         }
@@ -29,21 +32,27 @@ public enum HealthKitError: LocalizedError {
 public final class HealthKitManager: HealthKitServiceProtocol, @unchecked Sendable {
     public static let shared = HealthKitManager()
 
-    private let healthStore: HKHealthStore?
-
     public var isHealthDataAvailable: Bool {
         HKHealthStore.isHealthDataAvailable()
     }
 
-    public init(healthStore: HKHealthStore? = HKHealthStore.isHealthDataAvailable() ? HKHealthStore() : nil) {
-        self.healthStore = healthStore
+    public init() {}
+
+    private func getHealthStore() throws -> HKHealthStore {
+        guard isHealthDataAvailable else {
+            throw HealthKitError.notAvailableOnDevice
+        }
+        return HKHealthStore()
     }
 
     /// Solicita permisos para acceder a las muestras de análisis de sueño registradas por Apple Watch
     public func requestAuthorization() async throws -> Bool {
-        guard let healthStore = healthStore, isHealthDataAvailable else {
-            throw HealthKitError.notAvailableOnDevice
+        // Verificación previa de seguridad para evitar excepciones de Objective-C
+        guard Bundle.main.object(forInfoDictionaryKey: "NSHealthShareUsageDescription") != nil else {
+            throw HealthKitError.missingUsageDescription
         }
+
+        let store = try getHealthStore()
 
         guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
             throw HealthKitError.queryFailed("Identificador .sleepAnalysis no disponible")
@@ -55,7 +64,7 @@ public final class HealthKitManager: HealthKitServiceProtocol, @unchecked Sendab
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            healthStore.requestAuthorization(toShare: nil, read: typesToRead) { success, error in
+            store.requestAuthorization(toShare: nil, read: typesToRead) { success, error in
                 if let error = error {
                     continuation.resume(throwing: error)
                 } else {
@@ -67,9 +76,7 @@ public final class HealthKitManager: HealthKitServiceProtocol, @unchecked Sendab
 
     /// Obtiene las sesiones de sueño dentro de una ventana temporal
     public func fetchSleepSessions(from startDate: Date, to endDate: Date) async throws -> [SleepSession] {
-        guard let healthStore = healthStore else {
-            throw HealthKitError.notAvailableOnDevice
-        }
+        let store = try getHealthStore()
 
         guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
             throw HealthKitError.queryFailed("Identificador .sleepAnalysis inválido")
@@ -92,13 +99,13 @@ public final class HealthKitManager: HealthKitServiceProtocol, @unchecked Sendab
                 let categorySamples = (results as? [HKCategorySample]) ?? []
                 continuation.resume(returning: categorySamples)
             }
-            healthStore.execute(query)
+            store.execute(query)
         }
 
         return groupSamplesIntoSessions(samples)
     }
 
-    /// Obtiene la última sesión de sueño registrada (últimos 3 días para garantizar captura)
+    /// Obtiene la última sesión de sueño registrada
     public func fetchLatestSleepSession() async throws -> SleepSession? {
         let endDate = Date()
         let startDate = Calendar.current.date(byAdding: .day, value: -3, to: endDate) ?? endDate
@@ -107,13 +114,9 @@ public final class HealthKitManager: HealthKitServiceProtocol, @unchecked Sendab
     }
 
     // MARK: - Algoritmo de Segmentación y Agrupación en Sesiones de Sueño
-    /// Apple Watch registra múltiples intervalos discretos de fases.
-    /// Esta función agrupa las muestras continuas (separadas por menos de 3 horas)
-    /// en bloques cohesivos que representan cada noche de sueño.
     private func groupSamplesIntoSessions(_ samples: [HKCategorySample]) -> [SleepSession] {
         guard !samples.isEmpty else { return [] }
 
-        // Convertir muestras a nuestro modelo de dominio
         let domainSamples: [SleepSample] = samples.compactMap { sample in
             guard let stage = SleepStage(hkValue: sample.value) else { return nil }
             return SleepSample(
@@ -129,13 +132,12 @@ public final class HealthKitManager: HealthKitServiceProtocol, @unchecked Sendab
 
         var sessions: [SleepSession] = []
         var currentSessionSamples: [SleepSample] = []
-        let maxGapBetweenSamples: TimeInterval = 3.0 * 3600 // 3 horas de umbral de separación
+        let maxGapBetweenSamples: TimeInterval = 3.0 * 3600
 
         for sample in domainSamples {
             if let lastSample = currentSessionSamples.last {
                 let gap = sample.startDate.timeIntervalSince(lastSample.endDate)
                 if gap > maxGapBetweenSamples {
-                    // Finaliza la sesión actual y crea una nueva
                     if let session = createSession(from: currentSessionSamples) {
                         sessions.append(session)
                     }
@@ -157,11 +159,9 @@ public final class HealthKitManager: HealthKitServiceProtocol, @unchecked Sendab
 
     private func createSession(from samples: [SleepSample]) -> SleepSession? {
         guard let first = samples.first, let last = samples.last else { return nil }
-        
         let start = first.startDate
         let end = samples.map(\.endDate).max() ?? last.endDate
         
-        // La fecha de referencia de la sesión es la fecha del despertar
         return SleepSession(
             date: Calendar.current.startOfDay(for: end),
             startDate: start,

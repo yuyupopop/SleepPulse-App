@@ -20,8 +20,7 @@
     <string>SleepPulse requiere este permiso para coordinar la sincronización de análisis de descanso.</string>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
-        <string>armv7</string>
-        <string>healthkit</string>
+        <string>arm64</string>
     </array>
     <key>UISupportedInterfaceOrientations</key>
     <array>

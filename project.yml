@@ -9,13 +9,21 @@ targets:
     platform: iOS
     sources:
       - path: SleepPulse
+        excludes:
+          - "App/SleepPulse.entitlements"
     info:
       path: SleepPulse/App/Info.plist
+      properties:
+        CFBundleDisplayName: "SleepPulse"
+        NSHealthShareUsageDescription: "SleepPulse requiere acceder a los datos de análisis de sueño y ritmo cardíaco registrados por tu Apple Watch en Apple Salud para calcular tu rendimiento de sueño, eficiencia, consistencia y deuda de sueño acumulada."
+        NSHealthUpdateUsageDescription: "SleepPulse requiere este permiso para coordinar la sincronización de análisis de descanso."
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.sergio.SleepPulse
       GENERATE_INFOPLIST_FILE: NO
       INFOPLIST_FILE: SleepPulse/App/Info.plist
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       CODE_SIGNING_ALLOWED: NO
       CODE_SIGNING_REQUIRED: NO
       CODE_SIGN_IDENTITY: ""
       ENABLE_USER_SCRIPT_SANDBOXING: NO
+      CODE_SIGN_ENTITLEMENTS: SleepPulse/App/SleepPulse.entitlements

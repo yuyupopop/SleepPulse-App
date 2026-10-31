@@ -8,6 +8,7 @@
 import SwiftUI
 
 /// Vista que despliega el resumen estadístico agregado para el periodo seleccionado (Día, Semana, Mes, Año).
+@MainActor
 public struct PeriodSummaryView: View {
     public let summary: SleepPeriodSummary
     public let latestMetrics: SleepMetrics?
@@ -19,7 +20,7 @@ public struct PeriodSummaryView: View {
             metricsGridSection
 
             // Botón destacado hacia la pantalla de Profundidad del Sueño e Hipnograma
-            if let session = summary.primarySession {
+            if summary.primarySession != nil {
                 NavigationLink(destination: SleepDepthHypnogramView(viewModel: depthViewModel)) {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
