@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleIdentifier</key>
+    <string>com.sergio.SleepPulse</string>
+    <key>CFBundleName</key>
+    <string>SleepPulse</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>NSHealthShareUsageDescription</key>
+    <string>SleepPulse requiere acceder a los datos de análisis de sueño y ritmo cardíaco registrados por tu Apple Watch en Apple Salud para calcular tu rendimiento de sueño, eficiencia, consistencia y deuda de sueño acumulada.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>SleepPulse requiere este permiso para coordinar la sincronización de análisis de descanso.</string>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>armv7</string>
+        <string>healthkit</string>
+    </array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+</dict>
+</plist>

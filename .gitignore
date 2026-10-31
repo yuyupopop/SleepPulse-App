@@ -1,0 +1,15 @@
+# Xcode & Swift
+.DS_Store
+*/build/*
+*.xcuserstate
+*.xcuserdatad
+xcuserdata/
+DerivedData/
+.build/
+.swiftpm/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
