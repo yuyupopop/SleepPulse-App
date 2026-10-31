@@ -13,11 +13,15 @@ import SwiftUI
 public struct SleepPulseApp: App {
     public init() {}
 
-    private let healthKitService: HealthKitServiceProtocol = {
+    private let healthKitService: any HealthKitServiceProtocol = {
         #if targetEnvironment(simulator)
         return MockHealthKitService.shared
         #else
-        return HealthKitManager.shared.isHealthDataAvailable ? HealthKitManager.shared : MockHealthKitService.shared
+        if HealthKitManager.shared.isHealthDataAvailable {
+            return HealthKitManager.shared
+        } else {
+            return MockHealthKitService.shared
+        }
         #endif
     }()
 
