@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch: # Permite disparar la compilación manualmente con un clic en GitHub
+  workflow_dispatch:
 
 jobs:
   build-and-test:
