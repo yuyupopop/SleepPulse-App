@@ -10,12 +10,14 @@ import SwiftUI
 /// Pantalla principal de la aplicación.
 /// Centraliza la visualización de datos de Apple Watch / Apple Salud,
 /// el selector de periodos (Día, Semana, Mes, Año) y las métricas biométricas.
+@MainActor
 public struct DashboardView: View {
     @StateObject private var viewModel: DashboardViewModel
     @StateObject private var depthViewModel = SleepDepthViewModel()
 
-    public init(viewModel: DashboardViewModel = DashboardViewModel()) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+    public init(viewModel: DashboardViewModel? = nil) {
+        let vm = viewModel ?? DashboardViewModel()
+        _viewModel = StateObject(wrappedValue: vm)
     }
 
     public var body: some View {
@@ -171,12 +173,4 @@ public struct DashboardView: View {
         }
         .padding(.vertical, 60)
     }
-}
-
-#Preview {
-    DashboardView(
-        viewModel: DashboardViewModel(
-            healthKitService: MockHealthKitService.shared
-        )
-    )
 }
